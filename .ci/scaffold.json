@@ -1,0 +1,14 @@
+{
+  "repository": "Nasa-hackathon-FIREBRIDGE/FireBridge-AI",
+  "previous_repository": "Nasa-hackathon-FIREBRIDGE/FireBridge-AI-Agent",
+  "deployment_branch": "main",
+  "environment": "agent-production",
+  "deployment_account": "firebridge-agent-deploy",
+  "gateway": "gateway.py",
+  "runtime_root": "/opt/firebridge/agent",
+  "required_code": [
+    "pyproject.toml",
+    "uv.lock",
+    "src/firebridge_agent/main.py"
+  ]
+}
