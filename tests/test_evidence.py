@@ -83,3 +83,85 @@ def test_packs_record_their_fact_builder_version():
     stored.pop("builder")
     legacy = EvidencePack.from_json(json.dumps(stored))
     assert legacy.builder == 1 and not legacy.current
+
+
+def test_science_section_adds_independent_checks():
+    report = bridge_report()
+    inner = report["report"]
+    inner["evidence"] = {
+        "seasonality": {
+            "core": {"start": 6, "length": 3, "share": 0.82},
+            "years": [{"year": "2021", "inCore": True}, {"year": "2022", "inCore": True}],
+            "peakTiming": None,
+        },
+        "timeOfDay": {
+            "afternoon": {
+                "aqua": 90,
+                "terra": 71,
+                "ratio": 1.268,
+                "months": 34,
+                "aquaClock": 13.27,
+                "terraClock": 10.87,
+            },
+            "daytime": [],
+        },
+        "intensity": {
+            "groups": [
+                {"instrument": "MODIS", "n": 274, "medianFrp": 25.5, "topTenthShare": 0.6},
+                {"instrument": "VIIRS", "n": 2307, "medianFrp": 7.92, "topTenthShare": 0.536},
+            ],
+            "clusters": {"count": 1773, "topTenthShare": 0.525},
+        },
+        "trends": {
+            "years": ["2021", "2022", "2023", "2024"],
+            "raw": {"p": 1.0, "relativeSlope": -0.025},
+            "constant": {"sensor": "snpp", "p": 0.27, "relativeSlope": -0.16},
+            "harmonized": {"p": 0.57, "relativeSlope": -0.06},
+        },
+        "months": [
+            {
+                "month": "2022-07",
+                "detections": 120,
+                "highConfidence": 0.4,
+                "energy": {"z": 2.6, "n": 2, "agreeing": 2},
+                "extent": {"z": 1.4, "n": 2, "agreeing": 2},
+            },
+            {
+                "month": "2021-08",
+                "detections": 40,
+                "highConfidence": 0.3,
+                "energy": {"z": 2.4, "n": 2, "agreeing": 2},
+                "extent": {"z": 0.1, "n": 2, "agreeing": 0},
+            },
+        ],
+        "robustness": [
+            {
+                "month": "2022-07",
+                "kind": "unusual-high",
+                "dropOne": {"tried": 2, "held": 0, "breakers": ["snpp", "noaa20"]},
+                "thresholds": [{"threshold": 2.5, "kind": "unusual-high"}],
+            }
+        ],
+        "places": {
+            "seasonStart": 6,
+            "years": 7,
+            "recurrent": {"cells": 47, "cellDayShare": 0.324, "minimumYears": 4},
+            "offSeasonElsewhere": {"share": 0.446, "offSeasonCellDays": 574},
+        },
+        "weekly": {"counts": [222, 244, 275, 251, 249, 257, 275], "chi2": 8.1, "p": 0.233, "quietest": 0, "busiest": 6},
+    }
+    pack = build_pack(ANALYSIS_ID, report=report)
+    science = " ".join(texts(pack, "science"))
+    assert "July to September" in science
+    assert "1.27x as many detections" in science and "13:00 and 18:30" in science
+    assert "7.9 MW against 25.5 MW" in science
+    assert "Suomi-NPP alone -16% a year (p = 0.27)" in science
+    assert "Robustness: 1 of 1 unusual months" in science
+    assert "47 of the burning 5 km cells" in science
+    assert "no weekly rhythm beyond chance" in science
+    assert pack.months["2022-07"]["checks"]["radiated_power_z"] == 2.6
+
+
+def test_reports_without_evidence_still_build():
+    pack = build_pack(ANALYSIS_ID, report=bridge_report())
+    assert not texts(pack, "science")

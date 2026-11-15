@@ -74,7 +74,8 @@ class Fact:
 #: Version of the fact builder. Bump it whenever the wording or meaning of facts changes: stored packs
 #: from an older builder are then treated as not ingested and rebuilt on next use, so explanations never
 #: keep a corrected fact. 2: the Aqua drift fact states how drifted years were handled (2026-11-12).
-EVIDENCE_BUILDER = 2
+#: 3: independent scientific checks from the report's `evidence` section (2026-11-13).
+EVIDENCE_BUILDER = 3
 
 
 @dataclass
@@ -444,6 +445,7 @@ def _bridge(report: dict[str, Any], facts: _Facts, pack: EvidencePack, native_lo
         )
 
     _jury(report, facts, pack)
+    _science(report, facts, pack)
 
     effect = report.get("driftEffect")
     if effect and effect.get("estimate"):
@@ -570,6 +572,165 @@ def _jury(report: dict[str, Any], facts: _Facts, pack: EvidencePack) -> None:
         )
     if anomalies and not unusual and not artifacts:
         facts.add("jury", "No month stands out once each satellite is compared with its own past.", 2)
+
+
+def _p(value: float) -> str:
+    return "p < 0.001" if value < 0.001 else f"p = {value:.3f}" if value < 0.01 else f"p = {value:.2f}"
+
+
+def _rate(value: float | None) -> str:
+    if value is None:
+        return "n/a"
+    sign = "+" if value > 0 else "-" if value < 0 else "±"
+    return f"{sign}{abs(round(value * 100))}% a year"
+
+
+def _span(start: int, length: int) -> str:
+    end = (start + length - 1) % 12
+    return MONTH_NAMES[start] if length == 1 else f"{MONTH_NAMES[start]} to {MONTH_NAMES[end]}"
+
+
+def _science(report: dict[str, Any], facts: _Facts, pack: EvidencePack) -> None:
+    """Independent checks computed by the frontend engine (`report.evidence`): quantities the satellite
+    jury did not use, each comparable with published fire science. Absent in older exports."""
+    ev = report.get("evidence")
+    if not isinstance(ev, dict):
+        return
+    season = ev.get("seasonality")
+    if season and season.get("core"):
+        core, years = season["core"], season.get("years") or []
+        inside = sum(1 for y in years if y.get("in_core", y.get("inCore")))
+        timing = season.get("peakTiming") or {}
+        test = f" (Rayleigh test on the yearly peaks, {_p(timing['p'])})" if timing.get("p") is not None else ""
+        facts.add(
+            "science",
+            f"Fire season: {pct(core['share'])} of a typical year's activity falls from {_span(core['start'], core['length'])}; the peak month lands in that window in {inside} of {len(years)} full years{test}. MODIS on Terra and Aqua agree on the month of peak burning in most of the world (Giglio et al. 2006).",
+            2,
+        )
+    afternoon = (ev.get("timeOfDay") or {}).get("afternoon")
+    if afternoon:
+        aqua_at = f" at {clock(afternoon['aquaClock'])}" if afternoon.get("aquaClock") is not None else ""
+        terra_at = f" at {clock(afternoon['terraClock'])}" if afternoon.get("terraClock") is not None else ""
+        facts.add(
+            "science",
+            f"Time of day: over {afternoon['months']} months when both flew their original orbits, Aqua's afternoon pass{aqua_at} recorded {fmt_num(afternoon['ratio'], 2)}x as many detections as Terra's morning pass{terra_at} ({fmt_int(afternoon['aqua'])} against {fmt_int(afternoon['terra'])}), with the same MODIS instrument. Burning peaks between 13:00 and 18:30 local time (Giglio 2007).",
+            2,
+        )
+    intensity = ev.get("intensity") or {}
+    groups = {g["instrument"]: g for g in intensity.get("groups", [])}
+    if "MODIS" in groups and "VIIRS" in groups:
+        viirs, modis = groups["VIIRS"], groups["MODIS"]
+        clusters = intensity.get("clusters")
+        tail = (
+            f"; the largest tenth of detection clusters holds {pct(clusters['topTenthShare'])} of all detections"
+            if clusters
+            else ""
+        )
+        facts.add(
+            "science",
+            f"Fire intensity: the median daytime VIIRS detection radiates {fmt_num(viirs['medianFrp'])} MW against {fmt_num(modis['medianFrp'])} MW for MODIS, because VIIRS's 375 m pixels resolve smaller fires (Schroeder et al. 2014). The strongest tenth of VIIRS detections releases {pct(viirs['topTenthShare'])} of the radiated power{tail}, the heavy tail typical of wildfire sizes (Malamud et al. 1998).",
+            2,
+        )
+    trends = ev.get("trends") or {}
+    lines = []
+    for key, name in (("raw", "raw all-satellite total"), ("constant", None), ("harmonized", "Aqua-equivalent record")):
+        t = trends.get(key)
+        if t:
+            lines.append(
+                f"{name or label(t.get('sensor', '')) + ' alone'} {_rate(t.get('relativeSlope'))} ({_p(t['p'])})"
+            )
+    if lines and trends.get("years"):
+        years = trends["years"]
+        facts.add(
+            "science",
+            f"Trend over full years {years[0]}-{years[-1]} (Mann-Kendall test, Sen's slope): {'; '.join(lines)}. A p-value of 0.05 or more means no trend distinguishable from year-to-year variation.",
+            2,
+        )
+    threshold = (report.get("anomalies") or {}).get("threshold", 2)
+    kinds = {a["month"]: a.get("kind") for a in (report.get("anomalies") or {}).get("months", [])}
+    hotter = []
+    for m in ev.get("months", []):
+        month = m.get("month")
+        energy, extent = m.get("energy"), m.get("extent")
+        if not month or (not energy and not extent):
+            continue
+        entry = pack.months.setdefault(month, {"total": None, "by_sensor": {}})
+        entry["checks"] = {
+            "radiated_power_z": _r2((energy or {}).get("z")),
+            "burned_cells_z": _r2((extent or {}).get("z")),
+            "daytime_detections": m.get("detections"),
+            "high_confidence_share": _r2(m.get("highConfidence")),
+        }
+        kind = kinds.get(month)
+        if kind in ("unusual-high", "unusual-low"):
+            parts = []
+            if energy:
+                parts.append(
+                    f"radiated power {energy['z']:+.1f} spreads ({energy['agreeing']} of {energy['n']} satellites)"
+                )
+            if extent:
+                parts.append(f"number of burning 5 km cells {extent['z']:+.1f} spreads")
+            facts.add(
+                "science",
+                f"Second opinions on {month_name(month)}, each satellite against its own past same months: {'; '.join(parts)}.",
+                2,
+            )
+        elif kind != "artifact" and energy and energy["z"] >= threshold and energy.get("agreeing", 0) >= 2:
+            hotter.append((month, energy))
+    for month, energy in sorted(hotter, key=lambda x: -x[1]["z"])[:2]:
+        facts.add(
+            "science",
+            f"{month_name(month)} burned hotter than usual without unusually many detections: radiated power {energy['z']:+.1f} spreads above a usual {MONTH_NAMES[int(month[5:7]) - 1]} ({energy['agreeing']} of {energy['n']} satellites agree). Radiated fire energy is proportional to the vegetation burned (Wooster et al. 2005).",
+            1,
+        )
+    robust = [r for r in ev.get("robustness", []) if r.get("kind") in ("unusual-high", "unusual-low")]
+    if robust:
+        strict = [
+            month_name(r["month"])
+            for r in robust
+            if any(t["threshold"] == 2.5 and t["kind"] == r["kind"] for t in r.get("thresholds", []))
+        ]
+        two = sum(1 for r in robust if (r.get("dropOne") or {}).get("tried", 0) <= 2)
+        held = f" ({_join(strict)})" if strict else ""
+        rests = (
+            f" {two} of the verdicts rest on exactly two satellites agreeing, so withholding either one leaves no jury."
+            if two
+            else ""
+        )
+        facts.add(
+            "science",
+            f"Robustness: {len(strict)} of {len(robust)} unusual months stay unusual at a stricter 2.5-spread threshold{held}.{rests}",
+            2,
+        )
+    places = ev.get("places")
+    if places and (places.get("recurrent") or places.get("offSeasonElsewhere")):
+        parts = []
+        rec = places.get("recurrent")
+        if rec:
+            parts.append(
+                f"{rec['cells']} of the burning 5 km cells burned in at least {rec['minimumYears']} of {places.get('years')} years and hold {pct(rec['cellDayShare'])} of all fire cell-days"
+            )
+        off = places.get("offSeasonElsewhere")
+        if off:
+            parts.append(
+                f"{pct(off['share'])} of the fire outside the {_span(places['seasonStart'], 4)} season falls in cells that never burn in that season"
+            )
+        facts.add(
+            "science",
+            f"Where it burns: {'; '.join(parts)}. Places that burn year after year with a season of their own suggest managed burning; cropland fires follow agricultural calendars (Korontzi et al. 2006). Causes are not established by these data.",
+            2,
+        )
+    weekly = ev.get("weekly")
+    if weekly and weekly.get("counts"):
+        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        verdict = (
+            "a weekly rhythm, which only people can cause" if weekly["p"] < 0.05 else "no weekly rhythm beyond chance"
+        )
+        facts.add(
+            "science",
+            f"Weekly rhythm: detection clusters began least often on {days[weekly['quietest']]} ({weekly['counts'][weekly['quietest']]}) and most often on {days[weekly['busiest']]} ({weekly['counts'][weekly['busiest']]}); chi-square test {_p(weekly['p'])}, so {verdict} (weekly fire cycles: Earl et al. 2015).",
+            3,
+        )
 
 
 def build_pack(
