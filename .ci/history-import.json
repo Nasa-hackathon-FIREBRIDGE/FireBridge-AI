@@ -1,0 +1,179 @@
+{
+  "history_type": "reconstructed_import",
+  "replay_date": "2026-11-15",
+  "timezone": "Africa/Casablanca",
+  "repository": "Nasa-hackathon-FIREBRIDGE/FireBridge-AI",
+  "source_repository": "Nasa-hackathon-FIREBRIDGE/FireBridge-AI-Agent",
+  "source_head": "ef1da731b09eef7851a7093ef3481966875b46e9",
+  "source_tree": "17ae0e64b789208592e9ec418c9a63323a25754b",
+  "ci_baseline": "cd6850cf8baf21608574dd57f2a4756085d5b76d",
+  "branch": "codex/replay-2026-11-15",
+  "original_source_commit_count": 34,
+  "compacted_source_commit_count": 20,
+  "commits": [
+    {
+      "source_compact_commit": "4546490ccd08b3c01ad0757b3408d1c15e92a746",
+      "date": "2026-11-15T10:00:00+00:00",
+      "subject": "deploy: initialize the grounded AI service with verified production CI/CD",
+      "status": "replayed",
+      "new_commit": "fc0ebf0061c7ff446fac939628ef6652114bb4d3"
+    },
+    {
+      "source_compact_commit": "92a692d3bdabf9e46dd9e8d6572cb1d5b379d708",
+      "date": "2026-11-15T10:10:00+00:00",
+      "subject": "feat: normalize citations and attach workspace navigation references",
+      "status": "replayed",
+      "new_commit": "87dcfc2bea609452ed4e6a454efd3cd1746b3362"
+    },
+    {
+      "source_compact_commit": "57c043ac64537992cf84718e402e1a8aae6b6c81",
+      "date": "2026-11-15T10:20:00+00:00",
+      "subject": "fix: identify satellite instruments and omit raw episode coordinates",
+      "status": "replayed",
+      "new_commit": "fe03314f368514e67f7638a4ef4c70fbbb56fb8a"
+    },
+    {
+      "source_compact_commit": "e03bc257e532bbe584459ebdc38776a60b79fd8b",
+      "date": "2026-11-15T10:30:00+00:00",
+      "subject": "fix: retain cached summaries when rebuilt evidence is unchanged",
+      "status": "replayed",
+      "new_commit": "0692c4ed58a16eacdfd1192d2a4806caea3da923"
+    },
+    {
+      "source_compact_commit": "a68996c10d862402593060047b5e4bf349e23a39",
+      "date": "2026-11-15T10:40:00+00:00",
+      "subject": "feat: enforce topic scope and screen prompt injection in chat requests",
+      "status": "replayed",
+      "new_commit": "6972497da030875e72b093931c616bc46ab8627f"
+    },
+    {
+      "source_compact_commit": "9805e145cc6c2a3239244007f34388ad334ad4c9",
+      "date": "2026-11-15T10:50:00+00:00",
+      "subject": "feat: expose app context, refusals and evidence references through the API",
+      "status": "replayed",
+      "new_commit": "50de618541874d8be55d14ecb234dce7fcd1d552"
+    },
+    {
+      "source_compact_commit": "0ff5e4fb46b8e41bf84ba340094e63aaa8952821",
+      "date": "2026-11-15T11:00:00+00:00",
+      "subject": "fix: constrain memory to user facts and exclude refused prompt history",
+      "status": "replayed",
+      "new_commit": "13f521d604b4180f6dd5928cb59418d181098d9c"
+    },
+    {
+      "source_compact_commit": "d6df4eacd5a8a69869321cf5f64cf78b15404931",
+      "date": "2026-11-15T11:10:00+00:00",
+      "subject": "test: verify citation normalization and satellite jury labels",
+      "status": "replayed",
+      "new_commit": "7c9174cafc7fe9cbf24885e6edbf041d3eb25677"
+    },
+    {
+      "source_compact_commit": "a6c81a1d3d0500104c88a6ff9344a1637bd47716",
+      "date": "2026-11-15T11:20:00+00:00",
+      "subject": "test: verify user-only memory scope and unsafe-memory filtering",
+      "status": "replayed",
+      "new_commit": "9dd58f2a042b57f6efb267b0b7e08a25a6e42af5"
+    },
+    {
+      "source_compact_commit": "5c85450e4cc20cfeca303bd514df0f28237fc394",
+      "date": "2026-11-15T11:30:00+00:00",
+      "subject": "test: cover injection refusal, topic scope and app-context references",
+      "status": "replayed",
+      "new_commit": "976c1c95554f858353e61d8a36f81254b716b416"
+    },
+    {
+      "source_compact_commit": "0d27fe6a34038bc1d9c8cad7c489fcd0c9a81e98",
+      "date": "2026-11-15T11:40:00+00:00",
+      "subject": "docs: describe scope enforcement and the grounded chat API",
+      "status": "replayed",
+      "new_commit": "ff37f642168c5074fe79ce5610738a2a78fefb39"
+    },
+    {
+      "source_compact_commit": "1d1e74439a9ae6ab620f13db8989aad44d2160d7",
+      "date": "2026-11-15T11:50:00+00:00",
+      "subject": "refactor: standardize the empty answer-reference shape",
+      "status": "replayed",
+      "new_commit": "72cef9325bd593e0796b2d7f4850e93575942f4e"
+    },
+    {
+      "source_compact_commit": "d216bfb61639ea051bff181467ff28c3cc53b4f1",
+      "date": "2026-11-15T12:00:00+00:00",
+      "subject": "fix: include empty evidence references with refused answers",
+      "status": "replayed",
+      "new_commit": "a16f8f77df90d203d6ab9bf817099368e7c54b48"
+    },
+    {
+      "source_compact_commit": "0faa72525a1480484abd9b678d17225bd7ef319b",
+      "date": "2026-11-15T12:10:00+00:00",
+      "subject": "fix: answer unsupported weather and cause questions honestly",
+      "status": "replayed",
+      "new_commit": "d9de1b7029f9fe33c898217a0367496fa9d8f7c1"
+    },
+    {
+      "source_compact_commit": "61f38a77c53a096abb908012d43a7a2a11bf0b1d",
+      "date": "2026-11-15T12:20:00+00:00",
+      "subject": "fix: distinguish satellite names from numeric detection claims",
+      "status": "replayed",
+      "new_commit": "68baf00961119db38f8b7aded2120555762f65ef"
+    },
+    {
+      "source_compact_commit": "c206d388b83b41b9691f2d8b25f04da7800c2a8f",
+      "date": "2026-11-15T12:30:00+00:00",
+      "subject": "test: cover satellite identifiers beside numeric counts",
+      "status": "replayed",
+      "new_commit": "a6b0c077a84a2253f1d60998930375c0a962b918"
+    },
+    {
+      "source_compact_commit": "029c9d8d0a2acf1fcfac5a4a4716eae016437b3f",
+      "date": "2026-11-15T12:40:00+00:00",
+      "subject": "test: enforce empty evidence references on topic-scope refusals",
+      "status": "replayed",
+      "new_commit": "de624089a4e4e6e8f3acd41df3790eb29c4e70e2"
+    },
+    {
+      "source_compact_commit": "e52a7a8abbf9e3517576148a37fda07c646b86f4",
+      "date": "2026-11-15T12:50:00+00:00",
+      "subject": "chore: license the AI service under MIT",
+      "status": "replayed",
+      "new_commit": "183e3f804f5382756584dde6fa01cf722ff0ce31"
+    },
+    {
+      "source_compact_commit": "02dd0d10e5cbc3025050f1535db87f7654aa17d0",
+      "date": "2026-11-15T13:00:00+00:00",
+      "subject": "fix: correct orbital drift evidence and rebuild stale evidence packs",
+      "status": "replayed",
+      "new_commit": "411c33445d63da864f0200a680accc861f017ff7"
+    },
+    {
+      "source_compact_commit": "acc237eea72ba3811b8d8326975f756d69447c54",
+      "date": "2026-11-15T13:10:00+00:00",
+      "subject": "feat: ground explanations in independent frontend scientific checks",
+      "status": "replayed",
+      "new_commit": "516a2701acea1f378a76e4bf50a3339a42e587a6"
+    }
+  ],
+  "application_code_matches_source": false,
+  "new_ci_configuration_preserved": false,
+  "note": "Commit timestamps describe an explicitly reconstructed history. GitHub push, PR and CI timestamps are recorded independently.",
+  "application_code_changes": [
+    {
+      "path": "src/firebridge_agent/config.py",
+      "reason": "User-authorized ogote.com primary domain migration and retained legacy API/AI compatibility"
+    }
+  ],
+  "new_ci_configuration_changes": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "reason": "User-authorized ogote.com primary domain migration and retained legacy API/AI compatibility"
+    },
+    {
+      "path": "deploy/README.md",
+      "reason": "User-authorized ogote.com primary domain migration and retained legacy API/AI compatibility"
+    },
+    {
+      "path": "deploy/gateway.py",
+      "reason": "User-authorized ogote.com primary domain migration and retained legacy API/AI compatibility"
+    }
+  ],
+  "primary_domain": "ogote.com"
+}

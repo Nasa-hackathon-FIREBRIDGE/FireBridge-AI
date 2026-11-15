@@ -170,7 +170,7 @@ def activate(revision, allow_legacy=False):
         "previous_revision": previous.get("revision"),
         "database_backup": backup,
         "deployed_at": datetime.now(UTC).isoformat(),
-        "url": "https://astramind.solutions/agent",
+        "url": "https://ogote.com/agent",
     }
     temporary = receipt_path.with_suffix(".next")
     temporary.write_text(json.dumps(receipt, indent=2) + "\n")

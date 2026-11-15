@@ -1,6 +1,6 @@
 # FireBridge AI Agent
 
-An explainer agent for [FIREBRIDGE](https://astramind.solutions/) satellite fire analyses. Give it an analysis id (and, optionally, the sensor-bridge report exported by the FIREBRIDGE frontend). It writes a grounded executive summary and then answers questions about the analysis in a chat. It remembers the conversation and the user across sessions.
+An explainer agent for [FIREBRIDGE](https://ogote.com/) satellite fire analyses. Give it an analysis id (and, optionally, the sensor-bridge report exported by the FIREBRIDGE frontend). It writes a grounded executive summary and then answers questions about the analysis in a chat. It remembers the conversation and the user across sessions.
 
 The agent never invents a statistic. Every number comes from code that reads the FIREBRIDGE data. The language model only explains those numbers, citing the facts it used, and a number guard checks every answer against what the model was shown.
 
@@ -146,7 +146,7 @@ All settings are environment variables (or `.env`). See `.env.example`.
 
 Production CI/CD and server operations are documented in [deploy/README.md](deploy/README.md).
 Pushes to `main` automatically validate, publish and deploy the verified image to
-`https://astramind.solutions/agent/`; pull requests run checks without deploying.
+`https://ogote.com/agent/`; pull requests run checks without deploying.
 
 ```bash
 make test     # 138 tests, no network: scripted LLM, mocked Groq and FIREBRIDGE transports
@@ -169,3 +169,16 @@ make lint
 - **Free-tier quotas cap throughput** at roughly 3–6 chat turns per minute across the chain. Under sustained load, answers slow down while models cool down, then degrade to fact lists.
 - **Rate limiting and model state are in memory and per process.** Run one replica, or move them to Redis before scaling out.
 - **The agent explains FIREBRIDGE results; it adds no new science.** Its answers inherit the limits of the evidence: detections are not fires, the harmonized record is an estimate, and these data do not establish causes. It is not an emergency or warning service.
+
+## Repository import and deployment
+
+This repository imports the existing FireBridge source as a compacted, reconstructed
+history dated **15 November 2026**, in the Africa/Casablanca time zone.
+Commit dates describe the replay; actual publication and CI times remain separate.
+The original authors and source snapshots are preserved; `.ci/history-import.json`
+maps replay commits to their source commits.
+
+The new repository's CI/CD and Docker configuration are retained. Pull requests
+validate the complete application. Merging into `main` starts automatic
+production deployment after all required workflow jobs pass. Merge without
+squashing to preserve the grouped source history.

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # Longest the router waits for a cooling-down model before giving up with 503.
     max_wait_for_model_s: float = 20.0
 
-    firebridge_api_url: str = "https://astramind.solutions/api/v1"
+    firebridge_api_url: str = "https://ogote.com/api/v1"
     firebridge_timeout_s: float = 60.0
 
     database_path: Path = Path("data/agent.db")

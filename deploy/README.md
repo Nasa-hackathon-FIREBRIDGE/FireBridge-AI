@@ -6,7 +6,7 @@ connection only; application build and deployment wait for source code.
 # FireBridge AI Agent production
 
 The repository deploys `main` automatically to the existing Contabo host.
-The API base is `https://astramind.solutions/agent/v1`. Clients send `X-API-Key`.
+The API base is `https://ogote.com/agent/v1`. Clients send `X-API-Key`.
 Liveness and readiness are `/agent/health` and `/agent/ready`. The application
 refuses to start in production without both service authentication and a Groq key.
 Readiness checks SQLite, a configured Groq key and model availability in the local
